@@ -73,7 +73,9 @@ const formatPurity = (value) => {
                                     <th class="border border-gray-300 px-3 py-3 text-center text-xs font-bold uppercase text-gray-700">
                                         PRECIO UNITARIO<br /><span class="font-normal">(Bs/g)</span>
                                     </th>
-                                    <th class="border border-gray-300 px-3 py-3 text-center text-xs font-bold uppercase text-gray-700">TOTAL (Bs)</th>
+                                    <th class="border border-gray-300 px-3 py-3 text-center text-xs font-bold uppercase text-gray-700">TOTAL FINAL (Bs)</th>
+                                    <th class="border border-gray-300 px-3 py-3 text-center text-xs font-bold uppercase text-gray-700">DESCUENTO (Bs)</th>
+                                    <th class="border border-gray-300 px-3 py-3 text-center text-xs font-bold uppercase text-gray-700">IMPUESTO (Bs)</th>
                                     <th class="border border-gray-300 px-3 py-3 text-center text-xs font-bold uppercase text-gray-700">
                                         Cotización ref.<br /><span class="font-normal">(USD/oz)</span>
                                     </th>
@@ -105,7 +107,13 @@ const formatPurity = (value) => {
                                         {{ formatNumber(sale.unit_price_bs) }}
                                     </td>
                                     <td class="border border-gray-200 px-3 py-4 text-center text-sm font-medium text-gray-900">
-                                        {{ formatNumber(sale.total_bs) }}
+                                        {{ formatNumber(sale.total) }}
+                                    </td>
+                                    <td class="border border-gray-200 px-3 py-4 text-center text-sm text-gray-900">
+                                        {{ formatNumber(sale.discount_amount) }}
+                                    </td>
+                                    <td class="border border-gray-200 px-3 py-4 text-center text-sm text-gray-900">
+                                        {{ formatNumber(sale.tax_amount) }}
                                     </td>
                                     <td class="border border-gray-200 px-3 py-4 text-center text-sm text-gray-900">
                                         {{ formatNumber(sale.reference_quote_usd_oz) }}
@@ -133,7 +141,7 @@ const formatPurity = (value) => {
                                     </td>
                                 </tr>
                                 <tr v-if="sales.length === 0">
-                                    <td colspan="11" class="border border-gray-200 px-6 py-12 text-center text-sm text-gray-500">
+                                    <td colspan="13" class="border border-gray-200 px-6 py-12 text-center text-sm text-gray-500">
                                         No hay ventas registradas.
                                     </td>
                                 </tr>

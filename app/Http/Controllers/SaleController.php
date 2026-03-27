@@ -32,6 +32,12 @@ class SaleController extends Controller
                 'purity' => $s->purity,
                 'unit_price_bs' => $s->unit_price_bs,
                 'total_bs' => $s->total_bs,
+                'subtotal' => $s->subtotal,
+                'discount_percentage' => $s->discount_percentage,
+                'discount_amount' => $s->discount_amount,
+                'tax_percentage' => $s->tax_percentage,
+                'tax_amount' => $s->tax_amount,
+                'total' => $s->total,
                 'reference_quote_usd_oz' => $s->reference_quote_usd_oz,
                 'quote_source' => $s->quote_source,
                 'exchange_rate_bs_usd' => $s->exchange_rate_bs_usd,
@@ -72,6 +78,15 @@ class SaleController extends Controller
             $evidencePath = $request->file('evidence')->store('sales/evidence', 'public');
         }
 
+        $subtotal = (string) $validated['total_bs'];
+        $discountPercentage = (string) ($validated['discount_percentage'] ?? 0);
+        $taxPercentage = (string) ($validated['tax_percentage'] ?? 0);
+
+        $discountAmount = bcmul($subtotal, bcdiv($discountPercentage, '100', 10), 4);
+        $netSubtotal = bcsub($subtotal, $discountAmount, 4);
+        $taxAmount = bcmul($netSubtotal, bcdiv($taxPercentage, '100', 10), 4);
+        $total = bcadd($netSubtotal, $taxAmount, 4);
+
         $saleNumber = 'V-' . now()->format('Ymd-His') . '-' . str_pad((string) (Sale::count() + 1), 4, '0', STR_PAD_LEFT);
 
         Sale::create([
@@ -85,11 +100,16 @@ class SaleController extends Controller
             'purity' => $validated['purity'],
             'unit_price_bs' => $validated['unit_price_bs'],
             'total_bs' => $validated['total_bs'],
+            'subtotal' => $subtotal,
+            'discount_percentage' => $discountPercentage,
+            'discount_amount' => $discountAmount,
+            'tax_percentage' => $taxPercentage,
+            'tax_amount' => $taxAmount,
             'reference_quote_usd_oz' => $validated['reference_quote_usd_oz'] ?? null,
             'quote_source' => $validated['quote_source'] ?? null,
             'exchange_rate_bs_usd' => $validated['exchange_rate_bs_usd'] ?? null,
             'evidence_path' => $evidencePath,
-            'total' => $validated['total_bs'],
+            'total' => $total,
             'currency' => 'BOB',
             'notes' => $validated['notes'] ?? null,
         ]);

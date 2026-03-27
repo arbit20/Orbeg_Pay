@@ -22,6 +22,8 @@ class StoreSaleRequest extends FormRequest
             'purity' => ['required', 'numeric', 'min:0', 'max:1'],
             'unit_price_bs' => ['required', 'numeric', 'min:0.01'],
             'total_bs' => ['required', 'numeric', 'min:0.01'],
+            'discount_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
+            'tax_percentage' => ['nullable', 'numeric', 'min:0', 'max:100'],
             'reference_quote_usd_oz' => ['nullable', 'numeric', 'min:0'],
             'quote_source' => ['nullable', 'string', 'max:50'],
             'exchange_rate_bs_usd' => ['nullable', 'numeric', 'min:0'],
@@ -43,6 +45,8 @@ class StoreSaleRequest extends FormRequest
             'purity.max' => 'La ley no puede ser mayor a 1 (100%).',
             'unit_price_bs.required' => 'El precio unitario es obligatorio.',
             'total_bs.required' => 'El total es obligatorio.',
+            'discount_percentage.max' => 'El descuento no puede ser mayor a 100%.',
+            'tax_percentage.max' => 'El impuesto no puede ser mayor a 100%.',
             'evidence.image' => 'La evidencia debe ser una imagen.',
             'evidence.max' => 'La imagen no debe superar 5MB.',
         ];
