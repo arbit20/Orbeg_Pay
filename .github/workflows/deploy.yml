@@ -1,0 +1,43 @@
+name: Deploy Backend Grupo06
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Descargar código
+        uses: actions/checkout@v3
+
+      - name: Instalar PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: Instalar dependencias
+        run: composer install --no-interaction --prefer-dist
+
+      - name: Preparar .env para tests
+        run: cp .env.example .env && php artisan key:generate
+
+      - name: Correr tests
+        run: php artisan test
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Conectar al servidor y desplegar
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: 46.225.134.143
+          username: progweb-grupo06
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd /proyectos/ProgWeb/grupo06
+            git pull origin main
+            docker compose down
+            docker compose up -d --build
