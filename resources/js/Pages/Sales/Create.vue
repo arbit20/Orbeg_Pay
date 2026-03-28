@@ -23,6 +23,8 @@ const form = useForm({
     purity: 0.97,
     unit_price_bs: '',
     total_bs: '',
+    discount_percentage: 0,
+    tax_percentage: 0,
     reference_quote_usd_oz: '',
     quote_source: 'Kitco',
     exchange_rate_bs_usd: '',
@@ -41,7 +43,40 @@ const calculatedTotal = computed(() => {
 });
 
 watch(calculatedTotal, (val) => {
-    if (val) form.total_bs = val;
+    form.total_bs = val;
+});
+
+const subtotalValue = computed(() => {
+    const v = parseFloat(form.total_bs);
+    return isNaN(v) ? null : v;
+});
+
+const discountAmountPreview = computed(() => {
+    if (subtotalValue.value === null) return '';
+    const dp = parseFloat(form.discount_percentage);
+    if (isNaN(dp) || dp <= 0) return '0.00';
+    const discount = (subtotalValue.value * dp) / 100;
+    return discount.toFixed(2);
+});
+
+const taxAmountPreview = computed(() => {
+    if (subtotalValue.value === null) return '';
+    const dp = parseFloat(form.discount_percentage);
+    const tp = parseFloat(form.tax_percentage);
+    const discount = isNaN(dp) || dp <= 0 ? 0 : (subtotalValue.value * dp) / 100;
+    const net = subtotalValue.value - discount;
+    const tax = isNaN(tp) || tp <= 0 ? 0 : (net * tp) / 100;
+    return tax.toFixed(2);
+});
+
+const totalPreview = computed(() => {
+    if (subtotalValue.value === null) return '';
+    const dp = parseFloat(form.discount_percentage);
+    const tp = parseFloat(form.tax_percentage);
+    const discount = isNaN(dp) || dp <= 0 ? 0 : (subtotalValue.value * dp) / 100;
+    const net = subtotalValue.value - discount;
+    const tax = isNaN(tp) || tp <= 0 ? 0 : (net * tp) / 100;
+    return (net + tax).toFixed(2);
 });
 
 const onFileChange = (e) => {
@@ -161,10 +196,39 @@ const submit = () => {
                                     type="number"
                                     step="0.01"
                                     min="0"
+                                    :readonly="true"
                                     class="mt-1 block w-full bg-gray-50"
                                     required
                                 />
                                 <InputError :message="form.errors.total_bs" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <InputLabel for="discount_percentage" value="Descuento (%)" />
+                                <TextInput
+                                    id="discount_percentage"
+                                    v-model="form.discount_percentage"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    max="100"
+                                    class="mt-1 block w-full"
+                                />
+                                <InputError :message="form.errors.discount_percentage" class="mt-2" />
+                            </div>
+
+                            <div>
+                                <InputLabel for="tax_percentage" value="Impuesto (%)" />
+                                <TextInput
+                                    id="tax_percentage"
+                                    v-model="form.tax_percentage"
+                                    type="number"
+                                    step="0.01"
+                                    min="0"
+                                    max="100"
+                                    class="mt-1 block w-full"
+                                />
+                                <InputError :message="form.errors.tax_percentage" class="mt-2" />
                             </div>
 
                             <div>
@@ -226,6 +290,24 @@ const submit = () => {
                                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
                                 />
                                 <InputError :message="form.errors.notes" class="mt-2" />
+                            </div>
+
+                            <div class="md:col-span-2 rounded-md border border-gray-200 bg-gray-50 p-4">
+                                <div class="text-sm font-semibold text-gray-800">Resumen de impuestos y descuentos</div>
+                                <div class="mt-2 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                                    <div class="text-sm">
+                                        <div class="text-gray-500">Descuento</div>
+                                        <div class="font-semibold">{{ discountAmountPreview }}</div>
+                                    </div>
+                                    <div class="text-sm">
+                                        <div class="text-gray-500">Impuesto</div>
+                                        <div class="font-semibold">{{ taxAmountPreview }}</div>
+                                    </div>
+                                    <div class="text-sm">
+                                        <div class="text-gray-500">Total final</div>
+                                        <div class="font-semibold">{{ totalPreview }}</div>
+                                    </div>
+                                </div>
                             </div>
 
                             <div class="flex items-center justify-end gap-4 md:col-span-2">

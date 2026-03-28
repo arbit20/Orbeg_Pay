@@ -33,6 +33,8 @@ class Sale extends Model
         'evidence_path',
         'status',
         'subtotal',
+        'discount_percentage',
+        'discount_amount',
         'tax_percentage',
         'tax_amount',
         'total',
@@ -54,6 +56,8 @@ class Sale extends Model
             'reference_quote_usd_oz' => 'decimal:4',
             'exchange_rate_bs_usd' => 'decimal:4',
             'subtotal' => 'decimal:4',
+            'discount_percentage' => 'decimal:2',
+            'discount_amount' => 'decimal:4',
             'tax_percentage' => 'decimal:2',
             'tax_amount' => 'decimal:4',
             'total' => 'decimal:4',
@@ -91,12 +95,20 @@ class Sale extends Model
     public function recalculateTotals(): void
     {
         $subtotal = $this->items()->sum('subtotal');
-        $taxAmount = bcmul((string) $subtotal, bcdiv((string) $this->tax_percentage, '100', 10), 4);
+        $discountAmount = bcmul(
+            (string) $subtotal,
+            bcdiv((string) $this->discount_percentage, '100', 10),
+            4
+        );
+
+        $netSubtotal = bcsub((string) $subtotal, (string) $discountAmount, 4);
+        $taxAmount = bcmul($netSubtotal, bcdiv((string) $this->tax_percentage, '100', 10), 4);
 
         $this->update([
             'subtotal' => $subtotal,
+            'discount_amount' => $discountAmount,
             'tax_amount' => $taxAmount,
-            'total' => bcadd((string) $subtotal, $taxAmount, 4),
+            'total' => bcadd($netSubtotal, $taxAmount, 4),
         ]);
     }
 }
