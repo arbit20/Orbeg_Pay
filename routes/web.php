@@ -6,6 +6,7 @@ use App\Http\Controllers\PriceCalculatorController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\PurchaseRequestController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\TransactionSummaryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\MetalController;
 use App\Http\Controllers\MetalPriceController;
@@ -62,6 +63,10 @@ Route::middleware('auth')->group(function () {
     // Cotizador de precios
     Route::get('price-calculator', PriceCalculatorController::class)
         ->name('price-calculator');
+
+    // Reportes
+    Route::get('reports/transaction-summary', TransactionSummaryController::class)
+        ->name('reports.transaction-summary');
 
     // Modulo Usuarios (solo administradores)
     Route::resource('users', UserController::class);

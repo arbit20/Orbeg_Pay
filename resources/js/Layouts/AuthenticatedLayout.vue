@@ -85,6 +85,13 @@ const hasRole = (role) => roles.value.includes(role);
                                     Mis Solicitudes
                                 </NavLink>
                                 <NavLink
+                                    v-if="can('reports.view')"
+                                    :href="route('reports.transaction-summary')"
+                                    :active="route().current('reports.*')"
+                                >
+                                    Reportes
+                                </NavLink>
+                                <NavLink
                                     v-if="can('users.view')"
                                     :href="route('users.index')"
                                     :active="route().current('users.*')"
@@ -253,6 +260,13 @@ const hasRole = (role) => roles.value.includes(role);
                             :active="route().current('purchase-requests.*')"
                         >
                             Mis Solicitudes
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink
+                            v-if="can('reports.view')"
+                            :href="route('reports.transaction-summary')"
+                            :active="route().current('reports.*')"
+                        >
+                            Reportes
                         </ResponsiveNavLink>
                         <ResponsiveNavLink
                             v-if="can('users.view')"
